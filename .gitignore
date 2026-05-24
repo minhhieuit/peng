@@ -17,6 +17,12 @@ frontend/dist/
 frontend/.env.local
 frontend/.env.*.local
 
+# Nuxt client
+nuxt-client/node_modules/
+nuxt-client/.nuxt/
+nuxt-client/.output/
+nuxt-client/dist/
+
 # Rider / VS Code
 .idea/
 .vscode/

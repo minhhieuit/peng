@@ -34,6 +34,22 @@ services:
     networks:
       - peng-network
 
+  nuxt-client:
+    build:
+      context: ./nuxt-client
+      dockerfile: Dockerfile
+    container_name: peng-nuxt-client
+    ports:
+      - "3001:3000"
+    environment:
+      - NUXT_PUBLIC_API_BASE=http://api:8080
+      - NUXT_SITE_URL=http://localhost:3001
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - peng-network
+
   postgres:
     image: postgres:17-alpine
     container_name: peng-postgres
