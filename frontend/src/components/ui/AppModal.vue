@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { useModalStack } from '@/composables/useModalStack'
 
 const props = defineProps<{
   open: boolean
@@ -8,8 +9,21 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ close: [] }>()
 
+const id = Symbol()
+const { push, pop, zIndexFor, isTop } = useModalStack()
+
+const zIndex = computed(() => zIndexFor(id))
+
+watch(
+  () => props.open,
+  (val) => { if (val) push(id); else pop(id) },
+  { immediate: true },
+)
+
+onUnmounted(() => pop(id))
+
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape' && props.open) emit('close')
+  if (e.key === 'Escape' && props.open && isTop(id)) emit('close')
 }
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
@@ -18,10 +32,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <!-- Backdrop -->
+      <div
+        v-if="open"
+        class="fixed inset-0 flex items-center justify-center p-4"
+        :style="{ zIndex }"
+      >
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="$emit('close')" />
-        <!-- Dialog -->
         <div
           :class="[
             'relative bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] w-full',
@@ -30,7 +46,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             size === 'xl' ? 'max-w-4xl' : 'max-w-lg',
           ]"
         >
-          <!-- Header -->
           <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <h2 class="text-base font-semibold text-gray-900">{{ title }}</h2>
             <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -39,11 +54,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               </svg>
             </button>
           </div>
-          <!-- Body -->
           <div class="flex-1 overflow-y-auto px-6 py-5">
             <slot />
           </div>
-          <!-- Footer -->
           <div v-if="$slots.footer" class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
             <slot name="footer" />
           </div>
