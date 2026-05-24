@@ -1,0 +1,6 @@
+{
+  "frontend/src/**/*.{ts,vue,css}": [
+    "prettier --write --experimental-cli",
+    "eslint --fix --cache"
+  ]
+}
