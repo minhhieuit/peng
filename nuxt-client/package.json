@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.4.1",
-    "@nuxtjs/seo": "^2.0.4",
     "@tailwindcss/vite": "^4.1.8",
     "tailwindcss": "^4.1.8",
     "typescript": "~5.8.3"

@@ -11,7 +11,6 @@ export default defineNuxtConfig({
 
   modules: [
     '@pinia/nuxt',
-    '@nuxtjs/seo',
   ],
 
   css: ['~/assets/css/main.css'],
@@ -32,10 +31,11 @@ export default defineNuxtConfig({
     },
   },
 
-  site: {
-    url: 'https://example.com',
-    name: 'Peng',
-    description: 'Powered by Peng base system',
-    defaultLocale: 'en',
+  app: {
+    head: {
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      htmlAttrs: { lang: 'en' },
+    },
   },
 })
