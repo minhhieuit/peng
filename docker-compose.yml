@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: peng-frontend
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - api
     restart: unless-stopped
@@ -42,7 +42,7 @@ services:
       POSTGRES_USER: peng_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-peng_pass}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
