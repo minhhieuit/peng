@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/Bootstrapper/Peng.API/Dockerfile
+    container_name: peng-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=peng_db;Username=peng_user;Password=${POSTGRES_PASSWORD}
+      - Jwt__SecretKey=${JWT_SECRET_KEY}
+      - Jwt__Issuer=peng-api
+      - Jwt__Audience=peng-client
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - peng-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: peng-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - peng-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: peng-postgres
+    environment:
+      POSTGRES_DB: peng_db
+      POSTGRES_USER: peng_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-peng_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U peng_user -d peng_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - peng-network
+
+volumes:
+  postgres_data:
+
+networks:
+  peng-network:
+    driver: bridge

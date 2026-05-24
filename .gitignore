@@ -1,0 +1,26 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+logs/
+*.log
+
+# Environment
+.env
+!.env.example
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# Rider / VS Code
+.idea/
+.vscode/
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db

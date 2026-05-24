@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet add *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet tool *)",
+      "Bash(dotnet ef *)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(docker compose *)",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(where psql *)",
+      "Bash(where postgres *)",
+      "Bash(Get-Service -Name postgresql*)",
+      "PowerShell(Get-WmiObject *)",
+      "Bash(D:/Workspace-Hieu/PostgreSQL/bin/psql.exe *)",
+      "Bash(PGPASSWORD=123456 D:/Workspace-Hieu/PostgreSQL/bin/psql.exe *)",
+      "Bash(dotnet run *)",
+      "PowerShell(Get-Process *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl -s http://localhost:5000/api/docs/modules)",
+      "Bash(curl -s http://localhost:5159/api/docs/modules)",
+      "Bash(curl -s -X POST http://localhost:5159/api/auth/register -H 'Content-Type: application/json' -d '{\"email\":\"hieu@test.com\",\"password\":\"Test1234!\",\"firstName\":\"Hieu\",\"lastName\":\"Nguyen\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/api/docs/modules)",
+      "Bash(curl -s -X POST http://localhost:5173/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"newuser@peng.dev\",\"password\":\"Test1234!\"}')",
+      "Bash(grep -v \"^$\")"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+namespace Peng.SharedKernel.Application;
+
+public class Result
+{
+    protected Result(bool isSuccess, Error error)
+    {
+        if (isSuccess && error != Error.None) throw new InvalidOperationException();
+        if (!isSuccess && error == Error.None) throw new InvalidOperationException();
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public bool IsSuccess { get; }
+    public bool IsFailure => !IsSuccess;
+    public Error Error { get; }
+
+    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(false, error);
+    public static Result<T> Success<T>(T value) => new(value, true, Error.None);
+    public static Result<T> Failure<T>(Error error) => new(default, false, error);
+}
+
+public class Result<T> : Result
+{
+    private readonly T? _value;
+
+    protected internal Result(T? value, bool isSuccess, Error error) : base(isSuccess, error)
+    {
+        _value = value;
+    }
+
+    public T Value => IsSuccess ? _value! : throw new InvalidOperationException("Cannot access value of a failed result.");
+}
+
+public record Error(string Code, string Description)
+{
+    public static readonly Error None = new(string.Empty, string.Empty);
+    public static readonly Error NullValue = new("Error.NullValue", "Null value was provided.");
+
+    public static Error NotFound(string resource) => new($"{resource}.NotFound", $"{resource} was not found.");
+    public static Error Conflict(string resource) => new($"{resource}.Conflict", $"{resource} already exists.");
+    public static Error Forbidden() => new("Error.Forbidden", "You do not have permission to perform this action.");
+    public static Error Unauthorized() => new("Error.Unauthorized", "Authentication is required.");
+    public static Error Validation(string field, string message) => new($"Validation.{field}", message);
+}

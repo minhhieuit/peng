@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Bootstrapper/">
+    <Project Path="src/Bootstrapper/Peng.API/Peng.API.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/Peng.Modules.Identity.Application/Peng.Modules.Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/Peng.Modules.Identity.Domain/Peng.Modules.Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/Peng.Modules.Identity.Infrastructure/Peng.Modules.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/Peng.SharedKernel/Peng.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Peng.Tests.Integration/Peng.Tests.Integration.csproj" />
+    <Project Path="tests/Peng.Tests.Unit/Peng.Tests.Unit.csproj" />
+  </Folder>
+</Solution>
