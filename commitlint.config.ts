@@ -11,7 +11,7 @@ const config: UserConfig = {
       2, 'always',
       ['api', 'frontend', 'identity', 'shared', 'docker', 'ci', 'deps', 'docs', 'auth', 'roles', 'users', 'permissions'],
     ],
-    'scope-empty': [1, 'never'],
+    'scope-empty': [2, 'never'],
     'subject-case': [2, 'always', 'lower-case'],
     'subject-max-length': [2, 'always', 72],
     'body-max-line-length': [2, 'always', 100],
