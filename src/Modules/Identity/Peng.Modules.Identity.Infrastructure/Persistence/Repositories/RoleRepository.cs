@@ -20,4 +20,7 @@ internal class RoleRepository(IdentityDbContext context) : IRoleRepository
 
     public async Task AddAsync(Role role, CancellationToken ct = default) =>
         await context.Roles.AddAsync(role, ct);
+
+    public void Remove(Role role) =>
+        context.Roles.Remove(role);
 }

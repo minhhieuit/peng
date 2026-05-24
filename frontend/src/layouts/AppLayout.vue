@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store'
 import { useRouter } from 'vue-router'
+import AppSidebar from '@/components/layout/AppSidebar.vue'
+import AppToastContainer from '@/components/ui/AppToastContainer.vue'
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -12,27 +15,30 @@ function logout() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex flex-col">
-    <header class="bg-white shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-8">
-          <span class="text-xl font-bold text-indigo-600">Peng</span>
-          <nav class="flex items-center gap-6 text-sm font-medium text-gray-600">
-            <RouterLink to="/" class="hover:text-indigo-600 transition-colors">Dashboard</RouterLink>
-            <RouterLink v-if="authStore.hasPermission('identity:users:read')" to="/users" class="hover:text-indigo-600 transition-colors">Users</RouterLink>
-          </nav>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-600">{{ authStore.user?.fullName }}</span>
-          <button @click="logout" class="text-sm text-red-500 hover:text-red-700 transition-colors">
-            Logout
-          </button>
-        </div>
-      </div>
-    </header>
+  <div class="flex h-screen bg-gray-50 overflow-hidden">
+    <AppSidebar />
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <RouterView />
-    </main>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Top bar -->
+      <header class="h-14 bg-white border-b border-gray-200 flex items-center justify-end px-6 shrink-0">
+        <button
+          @click="logout"
+          class="flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+          </svg>
+          Logout
+        </button>
+      </header>
+
+      <!-- Page content -->
+      <main class="flex-1 overflow-y-auto p-6">
+        <RouterView />
+      </main>
+    </div>
+
+    <AppToastContainer />
+    <AppConfirmDialog />
   </div>
 </template>

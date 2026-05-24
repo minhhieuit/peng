@@ -8,4 +8,5 @@ public interface IRoleRepository
     Task<Role?> GetByNameAsync(string name, CancellationToken ct = default);
     Task<IReadOnlyList<Role>> GetAllAsync(CancellationToken ct = default);
     Task AddAsync(Role role, CancellationToken ct = default);
+    void Remove(Role role);
 }

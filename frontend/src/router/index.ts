@@ -20,6 +20,18 @@ const router = createRouter({
           component: () => import('@/views/UsersView.vue'),
           meta: { permission: 'identity:users:read' },
         },
+        {
+          path: 'roles',
+          name: 'roles',
+          component: () => import('@/views/RolesView.vue'),
+          meta: { permission: 'identity:roles:read' },
+        },
+        {
+          path: 'permissions',
+          name: 'permissions',
+          component: () => import('@/views/PermissionsView.vue'),
+          meta: { permission: 'identity:permissions:read' },
+        },
       ],
     },
     {
@@ -44,22 +56,10 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-
-  if (authStore.token && !authStore.user) {
-    await authStore.fetchMe()
-  }
-
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } }
-  }
-
-  if (to.meta.guest && authStore.isAuthenticated) {
-    return { name: 'dashboard' }
-  }
-
-  if (to.meta.permission && !authStore.hasPermission(to.meta.permission as string)) {
-    return { name: 'dashboard' }
-  }
+  if (authStore.token && !authStore.user) await authStore.fetchMe()
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) return { name: 'login', query: { redirect: to.fullPath } }
+  if (to.meta.guest && authStore.isAuthenticated) return { name: 'dashboard' }
+  if (to.meta.permission && !authStore.hasPermission(to.meta.permission as string)) return { name: 'dashboard' }
 })
 
 export default router
