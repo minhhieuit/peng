@@ -1,18 +1,25 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Peng.Modules.Identity.Application;
+using Peng.Modules.Identity.Application.Services;
 using Peng.Modules.Identity.Domain.Entities;
 
 namespace Peng.Modules.Identity.Infrastructure.Persistence;
 
-public class IdentityDbSeeder(IdentityDbContext context, ILogger<IdentityDbSeeder> logger)
+public class IdentityDbSeeder(
+    IdentityDbContext context,
+    IPasswordHasher passwordHasher,
+    IConfiguration configuration,
+    ILogger<IdentityDbSeeder> logger)
 {
     public async Task SeedAsync()
     {
         await context.Database.MigrateAsync();
         await SeedPermissionsAsync();
         await SeedRolesAsync();
+        await SeedAdminUserAsync();
         logger.LogInformation("Identity database seeded successfully.");
     }
 
@@ -63,6 +70,33 @@ public class IdentityDbSeeder(IdentityDbContext context, ILogger<IdentityDbSeede
         {
             context.ChangeTracker.Clear();
             logger.LogWarning("Seed conflict on Roles (concurrent startup), skipping.");
+        }
+    }
+
+    private async Task SeedAdminUserAsync()
+    {
+        var adminEmail = configuration["Seed:AdminEmail"] ?? "admin@peng.dev";
+        var adminPassword = configuration["Seed:AdminPassword"] ?? "Admin@1234";
+
+        if (await context.Users.AnyAsync(u => u.Email == adminEmail)) return;
+
+        var adminRole = await context.Roles
+            .Include(r => r.RolePermissions)
+            .FirstOrDefaultAsync(r => r.Name == "Admin");
+
+        var passwordHash = passwordHasher.Hash(adminPassword);
+        var admin = User.Create(adminEmail, "Admin", "System", passwordHash);
+        if (adminRole is not null) admin.AssignRole(adminRole);
+
+        await context.Users.AddAsync(admin);
+        try
+        {
+            await context.SaveChangesAsync();
+            logger.LogInformation("Admin user seeded: {Email}", adminEmail);
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintOrDeadlock(ex))
+        {
+            context.ChangeTracker.Clear();
         }
     }
 

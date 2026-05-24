@@ -12,6 +12,8 @@ services:
       - Jwt__SecretKey=${JWT_SECRET_KEY}
       - Jwt__Issuer=peng-api
       - Jwt__Audience=peng-client
+      - Seed__AdminEmail=${ADMIN_EMAIL:-admin@peng.dev}
+      - Seed__AdminPassword=${ADMIN_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy

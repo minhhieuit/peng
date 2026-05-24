@@ -26,7 +26,12 @@
       "Bash(curl -s http://localhost:5173/)",
       "Bash(curl -s http://localhost:5173/api/docs/modules)",
       "Bash(curl -s -X POST http://localhost:5173/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"newuser@peng.dev\",\"password\":\"Test1234!\"}')",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: seed default admin user on startup *)"
     ]
   }
 }

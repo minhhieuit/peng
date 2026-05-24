@@ -4,6 +4,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Default=Host=postgres;Port=5432;Database=peng_db;Username=peng_user;Password=peng_pass
       - Jwt__SecretKey=dev-secret-key-at-least-32-characters-long!
+      - Seed__AdminEmail=admin@peng.dev
+      - Seed__AdminPassword=Admin@1234
       - AllowedOrigins__0=http://localhost:5173
     ports:
       - "8080:8080"
