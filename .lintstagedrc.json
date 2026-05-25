@@ -1,6 +1,5 @@
 {
   "frontend/src/**/*.{ts,vue,css}": [
-    "prettier --write --experimental-cli",
-    "eslint --fix --cache"
+    "node ./frontend/node_modules/eslint/bin/eslint.js --fix --cache"
   ]
 }

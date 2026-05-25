@@ -23,6 +23,8 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/auth/**': { ssr: false },
     '/dashboard/**': { ssr: true },
+    '/courses': { isr: 60 },
+    '/courses/**': { ssr: true },
   },
 
   runtimeConfig: {

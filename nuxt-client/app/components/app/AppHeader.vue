@@ -7,6 +7,7 @@ const auth = useAuthStore()
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       <NuxtLink to="/" class="text-lg font-bold text-gray-900">Peng</NuxtLink>
       <nav class="flex items-center gap-6">
+        <NuxtLink to="/courses" class="text-sm text-gray-600 hover:text-gray-900">Courses</NuxtLink>
         <template v-if="auth.isAuthenticated">
           <NuxtLink to="/dashboard" class="text-sm text-gray-600 hover:text-gray-900">Dashboard</NuxtLink>
           <button class="text-sm text-gray-600 hover:text-gray-900" @click="auth.logout">Sign out</button>

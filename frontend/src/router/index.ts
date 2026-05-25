@@ -32,6 +32,12 @@ const router = createRouter({
           component: () => import('@/views/PermissionsView.vue'),
           meta: { permission: 'identity:permissions:read' },
         },
+        {
+          path: 'courses',
+          name: 'courses',
+          component: () => import('@/views/CoursesView.vue'),
+          meta: { permission: 'courses:courses:read' },
+        },
       ],
     },
     {

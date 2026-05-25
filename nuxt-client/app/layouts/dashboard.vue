@@ -6,6 +6,7 @@ const route = useRoute()
 
 const nav = [
   { label: 'Dashboard', to: '/dashboard', icon: 'home' },
+  { label: 'My Courses', to: '/dashboard/my-courses', icon: 'book' },
   { label: 'Profile', to: '/dashboard/profile', icon: 'user' },
 ]
 </script>
