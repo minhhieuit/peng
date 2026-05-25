@@ -3,6 +3,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Peng.Modules.Courses.Application;
+using Peng.Modules.Courses.Infrastructure;
 using Peng.Modules.Identity.Application.Commands.Register;
 using Peng.Modules.Identity.Infrastructure;
 using Peng.Modules.Identity.Infrastructure.Settings;
@@ -19,6 +21,7 @@ internal static class ServiceCollectionExtensions
         var installers = new List<IModuleInstaller>
         {
             new IdentityModuleInstaller(),
+            new CoursesModuleInstaller(),
         };
 
         foreach (var installer in installers)
@@ -32,10 +35,12 @@ internal static class ServiceCollectionExtensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(CoursesModuleDescriptor).Assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(typeof(RegisterCommand).Assembly);
+        services.AddValidatorsFromAssembly(typeof(CoursesModuleDescriptor).Assembly);
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, Peng.API.Infrastructure.CurrentUser>();
 

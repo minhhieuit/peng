@@ -4,6 +4,11 @@
     <Project Path="src/Bootstrapper/Peng.API/Peng.API.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Courses/">
+    <Project Path="src/Modules/Courses/Peng.Modules.Courses.Application/Peng.Modules.Courses.Application.csproj" />
+    <Project Path="src/Modules/Courses/Peng.Modules.Courses.Domain/Peng.Modules.Courses.Domain.csproj" />
+    <Project Path="src/Modules/Courses/Peng.Modules.Courses.Infrastructure/Peng.Modules.Courses.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Identity/">
     <Project Path="src/Modules/Identity/Peng.Modules.Identity.Application/Peng.Modules.Identity.Application.csproj" />
     <Project Path="src/Modules/Identity/Peng.Modules.Identity.Domain/Peng.Modules.Identity.Domain.csproj" />

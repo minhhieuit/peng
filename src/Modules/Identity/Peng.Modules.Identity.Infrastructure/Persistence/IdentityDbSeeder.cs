@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
+using Peng.Modules.Courses.Application;
 using Peng.Modules.Identity.Application;
 using Peng.Modules.Identity.Application.Services;
 using Peng.Modules.Identity.Domain.Entities;
@@ -29,9 +30,14 @@ public class IdentityDbSeeder(
         // On conflict (unique index) ignore — handles concurrent startup race condition.
         var existingCodes = (await context.Permissions.Select(p => p.Code).ToListAsync()).ToHashSet();
 
-        var toAdd = IdentityPermissions.All
+        var allPermissions = IdentityPermissions.All
+            .Select(p => (p.Code, p.Name, p.Description, Module: "Identity"))
+            .Concat(CoursesPermissions.All
+                .Select(p => (p.Code, p.Name, p.Description, Module: "Courses")));
+
+        var toAdd = allPermissions
             .Where(p => !existingCodes.Contains(p.Code))
-            .Select(p => Permission.Create(p.Code, p.Name, p.Description, "Identity"))
+            .Select(p => Permission.Create(p.Code, p.Name, p.Description, p.Module))
             .ToList();
 
         if (toAdd.Count == 0) return;
