@@ -31,7 +31,17 @@
       "Bash(git remote *)",
       "Bash(git push *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'feat: seed default admin user on startup *)"
+      "Bash(git commit -m 'feat: seed default admin user on startup *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl *)",
+      "Bash(Test-Path *)",
+      "Bash(kill %1)",
+      "PowerShell(netstat *)",
+      "Bash(git checkout *)",
+      "PowerShell(New-Item *)",
+      "PowerShell(taskkill *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
