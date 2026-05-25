@@ -1,10 +1,26 @@
 import api from '@/lib/axios'
-import type { CourseDto, EnrollmentDto, CreateCourseRequest, UpdateCourseRequest } from '@/types/courses.types'
+import type {
+  CourseDto,
+  EnrollmentDto,
+  CreateCourseRequest,
+  UpdateCourseRequest,
+  CourseListParams,
+  CourseStatsDto,
+} from '@/types/courses.types'
 import type { PagedList } from '@/types/common.types'
 
 export const coursesApi = {
-  getAll: (page = 1, pageSize = 20) =>
-    api.get<PagedList<CourseDto>>('/manage/courses', { params: { page, pageSize } }).then(r => r.data),
+  getAll: (params: CourseListParams = {}) =>
+    api.get<PagedList<CourseDto>>('/manage/courses', {
+      params: {
+        page: params.page ?? 1,
+        pageSize: params.pageSize ?? 20,
+        search: params.search || undefined,
+        status: params.status ?? 'All',
+      },
+    }).then(r => r.data),
+  getStats: () =>
+    api.get<CourseStatsDto>('/manage/courses/stats').then(r => r.data),
   getById: (id: string) =>
     api.get<CourseDto>(`/manage/courses/${id}`).then(r => r.data),
   create: (data: CreateCourseRequest) =>
@@ -17,4 +33,6 @@ export const coursesApi = {
     api.patch<CourseDto>(`/manage/courses/${id}/publish`).then(r => r.data),
   getEnrollments: (id: string) =>
     api.get<EnrollmentDto[]>(`/manage/courses/${id}/enrollments`).then(r => r.data),
+  revokeEnrollment: (courseId: string, userId: string) =>
+    api.delete(`/manage/courses/${courseId}/enrollments/${userId}`),
 }

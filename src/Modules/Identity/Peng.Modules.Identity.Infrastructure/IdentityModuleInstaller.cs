@@ -7,6 +7,7 @@ using Peng.Modules.Identity.Infrastructure.Persistence;
 using Peng.Modules.Identity.Infrastructure.Persistence.Repositories;
 using Peng.Modules.Identity.Infrastructure.Services;
 using Peng.Modules.Identity.Infrastructure.Settings;
+using Peng.SharedKernel.Application;
 using Peng.SharedKernel.Infrastructure;
 
 namespace Peng.Modules.Identity.Infrastructure;
@@ -27,6 +28,7 @@ public class IdentityModuleInstaller : IModuleInstaller
         services.AddScoped<IUnitOfWork, IdentityUnitOfWork>();
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IUserInfoProvider, UserInfoProvider>();
         services.AddScoped<IdentityDbSeeder>();
     }
 }

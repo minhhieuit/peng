@@ -21,13 +21,13 @@ public class EnrollUserCommandHandler(ICourseRepository courseRepository, IEnrol
                 return Result.Failure<EnrollmentDto>(Error.Conflict("Already enrolled in this course"));
             existing.Reactivate();
             await uow.SaveChangesAsync(cancellationToken);
-            return Result.Success(new EnrollmentDto(existing.Id, existing.CourseId, course.Title, existing.UserId, existing.Status.ToString(), existing.EnrolledAt));
+            return Result.Success(new EnrollmentDto(existing.Id, existing.CourseId, course.Title, existing.UserId, null, null, existing.Status.ToString(), existing.EnrolledAt));
         }
 
         var enrollment = Enrollment.Create(request.CourseId, request.UserId);
         await enrollmentRepository.AddAsync(enrollment, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new EnrollmentDto(enrollment.Id, enrollment.CourseId, course.Title, enrollment.UserId, enrollment.Status.ToString(), enrollment.EnrolledAt));
+        return Result.Success(new EnrollmentDto(enrollment.Id, enrollment.CourseId, course.Title, enrollment.UserId, null, null, enrollment.Status.ToString(), enrollment.EnrolledAt));
     }
 }

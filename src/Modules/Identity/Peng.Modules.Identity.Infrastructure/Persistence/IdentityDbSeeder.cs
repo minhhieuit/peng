@@ -59,12 +59,22 @@ public class IdentityDbSeeder(
     {
         try
         {
-            if (!await context.Roles.AnyAsync(r => r.Name == "Admin"))
+            var allPermissions = await context.Permissions.ToListAsync();
+            var adminRole = await context.Roles
+                .Include(r => r.RolePermissions)
+                .FirstOrDefaultAsync(r => r.Name == "Admin");
+
+            if (adminRole is null)
             {
-                var adminRole = Role.Create("Admin", "System administrator with full access", isSystem: true);
-                var allPermissions = await context.Permissions.ToListAsync();
+                adminRole = Role.Create("Admin", "System administrator with full access", isSystem: true);
                 foreach (var perm in allPermissions) adminRole.AssignPermission(perm);
                 context.Roles.Add(adminRole);
+            }
+            else
+            {
+                var assignedIds = adminRole.RolePermissions.Select(rp => rp.PermissionId).ToHashSet();
+                foreach (var perm in allPermissions.Where(p => !assignedIds.Contains(p.Id)))
+                    adminRole.AssignPermission(perm);
             }
 
             if (!await context.Roles.AnyAsync(r => r.Name == "Member"))

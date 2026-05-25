@@ -15,8 +15,26 @@ export interface EnrollmentDto {
   courseId: string
   courseTitle: string
   userId: string
+  userName: string | null
+  userEmail: string | null
   status: 'Active' | 'Cancelled'
   enrolledAt: string
+}
+
+export interface CourseStatsDto {
+  total: number
+  published: number
+  drafts: number
+  totalEnrollments: number
+}
+
+export type CourseStatusFilter = 'All' | 'Published' | 'Draft'
+
+export interface CourseListParams {
+  page?: number
+  pageSize?: number
+  search?: string
+  status?: CourseStatusFilter
 }
 
 export interface CreateCourseRequest {

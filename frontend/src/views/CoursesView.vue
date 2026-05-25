@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { coursesApi } from '@/api/courses.api'
-import type { CourseDto, EnrollmentDto } from '@/types/courses.types'
+import type {
+  CourseDto,
+  EnrollmentDto,
+  CourseStatusFilter,
+  CourseStatsDto,
+} from '@/types/courses.types'
+import type { PagedList } from '@/types/common.types'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 import { useAuthStore } from '@/stores/auth.store'
@@ -14,9 +20,19 @@ const toast = useToast()
 const { confirm } = useConfirm()
 const auth = useAuthStore()
 
-const courses = ref<CourseDto[]>([])
+const data = ref<PagedList<CourseDto> | null>(null)
+const stats = ref<CourseStatsDto | null>(null)
 const loading = ref(false)
-const totalCount = ref(0)
+const search = ref('')
+const status = ref<CourseStatusFilter>('All')
+const currentPage = ref(1)
+const pageSize = 20
+
+const statusOptions: { value: CourseStatusFilter; label: string }[] = [
+  { value: 'All', label: 'All statuses' },
+  { value: 'Published', label: 'Published' },
+  { value: 'Draft', label: 'Draft' },
+]
 
 // Create/Edit modal
 const formModal = ref(false)
@@ -35,9 +51,12 @@ const enrollLoading = ref(false)
 async function fetchCourses() {
   loading.value = true
   try {
-    const result = await coursesApi.getAll()
-    courses.value = result.items
-    totalCount.value = result.totalCount
+    data.value = await coursesApi.getAll({
+      page: currentPage.value,
+      pageSize,
+      search: search.value || undefined,
+      status: status.value,
+    })
   } catch {
     toast.error('Failed to load courses')
   } finally {
@@ -45,7 +64,33 @@ async function fetchCourses() {
   }
 }
 
-onMounted(fetchCourses)
+async function fetchStats() {
+  try {
+    stats.value = await coursesApi.getStats()
+  } catch {
+    // non-blocking
+  }
+}
+
+function onSearch() {
+  currentPage.value = 1
+  fetchCourses()
+}
+
+function onStatusChange() {
+  currentPage.value = 1
+  fetchCourses()
+}
+
+function changePage(delta: number) {
+  currentPage.value += delta
+  fetchCourses()
+}
+
+onMounted(() => {
+  fetchCourses()
+  fetchStats()
+})
 
 function openCreate() {
   isEditing.value = false
@@ -74,16 +119,14 @@ async function submitForm() {
       thumbnailUrl: form.value.thumbnailUrl || undefined,
     }
     if (isEditing.value && editTarget.value) {
-      const updated = await coursesApi.update(editTarget.value.id, payload)
-      const idx = courses.value.findIndex(c => c.id === editTarget.value!.id)
-      if (idx !== -1) courses.value[idx] = updated
+      await coursesApi.update(editTarget.value.id, payload)
       toast.success('Course updated')
     } else {
-      const created = await coursesApi.create(payload)
-      courses.value.unshift(created)
+      await coursesApi.create(payload)
       toast.success('Course created')
     }
     formModal.value = false
+    await Promise.all([fetchCourses(), fetchStats()])
   } catch (e: unknown) {
     const err = e as { response?: { data?: { details?: Record<string, string[]>; message?: string } } }
     const detail = err?.response?.data
@@ -101,10 +144,9 @@ async function submitForm() {
 
 async function togglePublish(course: CourseDto) {
   try {
-    const updated = await coursesApi.togglePublish(course.id)
-    const idx = courses.value.findIndex(c => c.id === course.id)
-    if (idx !== -1) courses.value[idx] = updated
-    toast.success(updated.isPublished ? 'Course published' : 'Course unpublished')
+    await coursesApi.togglePublish(course.id)
+    toast.success(course.isPublished ? 'Course unpublished' : 'Course published')
+    await Promise.all([fetchCourses(), fetchStats()])
   } catch {
     toast.error('Failed to update publish state')
   }
@@ -120,8 +162,8 @@ async function deleteCourse(course: CourseDto) {
   if (!ok) return
   try {
     await coursesApi.remove(course.id)
-    courses.value = courses.value.filter(c => c.id !== course.id)
     toast.success('Course deleted')
+    await Promise.all([fetchCourses(), fetchStats()])
   } catch {
     toast.error('Failed to delete course')
   }
@@ -141,6 +183,24 @@ async function openEnrollments(course: CourseDto) {
   }
 }
 
+async function revokeEnrollment(enrollment: EnrollmentDto) {
+  const ok = await confirm({
+    title: 'Revoke Enrollment',
+    message: `Revoke enrollment for "${enrollment.userName ?? enrollment.userId}"?`,
+    confirmText: 'Revoke',
+    danger: true,
+  })
+  if (!ok) return
+  try {
+    await coursesApi.revokeEnrollment(enrollment.courseId, enrollment.userId)
+    enrollments.value = enrollments.value.filter(e => e.id !== enrollment.id)
+    toast.success('Enrollment revoked')
+    await Promise.all([fetchCourses(), fetchStats()])
+  } catch {
+    toast.error('Failed to revoke enrollment')
+  }
+}
+
 function formatPrice(price: number) {
   return price === 0 ? 'Free' : `$${price.toFixed(2)}`
 }
@@ -156,7 +216,7 @@ function formatDate(d: string) {
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-xl font-bold text-gray-900">Courses</h1>
-        <p class="text-sm text-gray-500 mt-0.5">{{ totalCount }} total courses</p>
+        <p class="text-sm text-gray-500 mt-0.5">Manage courses, publication state, and enrollments</p>
       </div>
       <AppButton v-if="auth.hasPermission('courses:courses:write')" @click="openCreate">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -166,9 +226,52 @@ function formatDate(d: string) {
       </AppButton>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <!-- Stats cards -->
+    <div v-if="stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Courses</p>
+        <p class="text-2xl font-bold text-gray-900 mt-1">{{ stats.total }}</p>
+      </div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Published</p>
+        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ stats.published }}</p>
+      </div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Drafts</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">{{ stats.drafts }}</p>
+      </div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Active Enrollments</p>
+        <p class="text-2xl font-bold text-indigo-600 mt-1">{{ stats.totalEnrollments }}</p>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="bg-white rounded-xl border border-gray-200">
+      <!-- Filters -->
+      <div class="p-4 border-b border-gray-200 flex flex-wrap gap-3 items-center">
+        <input
+          v-model="search"
+          @keyup.enter="onSearch"
+          type="search"
+          placeholder="Search by title or description..."
+          class="flex-1 min-w-[200px] max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <select
+          v-model="status"
+          @change="onStatusChange"
+          class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+        </select>
+        <AppButton variant="secondary" size="sm" @click="onSearch">Search</AppButton>
+      </div>
+
+      <!-- Loading / Empty -->
       <div v-if="loading" class="p-12 text-center text-gray-400 text-sm">Loading...</div>
+      <div v-else-if="!data?.items.length" class="p-12 text-center text-gray-400 text-sm">No courses found</div>
+
+      <!-- Table -->
       <table v-else class="w-full text-sm">
         <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
@@ -181,7 +284,7 @@ function formatDate(d: string) {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr v-for="course in courses" :key="course.id" class="hover:bg-gray-50 transition-colors">
+          <tr v-for="course in data.items" :key="course.id" class="hover:bg-gray-50 transition-colors">
             <td class="px-4 py-3">
               <div class="font-medium text-gray-900">{{ course.title }}</div>
               <div class="text-xs text-gray-400 mt-0.5 line-clamp-1">{{ course.description }}</div>
@@ -216,11 +319,18 @@ function formatDate(d: string) {
               </div>
             </td>
           </tr>
-          <tr v-if="courses.length === 0">
-            <td colspan="6" class="px-4 py-12 text-center text-gray-400">No courses yet</td>
-          </tr>
         </tbody>
       </table>
+
+      <!-- Pagination -->
+      <div v-if="data && data.totalPages > 1" class="p-4 border-t border-gray-200 flex items-center justify-between">
+        <p class="text-xs text-gray-400">{{ data.totalCount }} courses total</p>
+        <div class="flex items-center gap-2">
+          <AppButton variant="secondary" size="sm" :disabled="!data.hasPreviousPage" @click="changePage(-1)">Prev</AppButton>
+          <span class="text-xs text-gray-500">{{ currentPage }} / {{ data.totalPages }}</span>
+          <AppButton variant="secondary" size="sm" :disabled="!data.hasNextPage" @click="changePage(1)">Next</AppButton>
+        </div>
+      </div>
     </div>
 
     <!-- Create/Edit Modal -->
@@ -265,18 +375,33 @@ function formatDate(d: string) {
       <table v-else class="w-full text-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">User ID</th>
+            <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">User</th>
             <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Status</th>
             <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">Enrolled</th>
+            <th class="px-3 py-2" />
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr v-for="e in enrollments" :key="e.id">
-            <td class="px-3 py-2 font-mono text-xs text-gray-600">{{ e.userId }}</td>
+          <tr v-for="e in enrollments" :key="e.id" class="hover:bg-gray-50">
             <td class="px-3 py-2">
-              <AppBadge :variant="e.status === 'Active' ? 'success' : undefined">{{ e.status }}</AppBadge>
+              <div class="text-sm font-medium text-gray-900">{{ e.userName ?? 'Unknown user' }}</div>
+              <div class="text-xs text-gray-400">{{ e.userEmail ?? e.userId }}</div>
+            </td>
+            <td class="px-3 py-2">
+              <AppBadge :variant="e.status === 'Active' ? 'success' : 'danger'">{{ e.status }}</AppBadge>
             </td>
             <td class="px-3 py-2 text-gray-500">{{ formatDate(e.enrolledAt) }}</td>
+            <td class="px-3 py-2 text-right">
+              <AppButton
+                v-if="e.status === 'Active' && auth.hasPermission('courses:enrollments:write')"
+                size="sm"
+                variant="ghost"
+                class="!text-red-500 hover:!bg-red-50"
+                @click="revokeEnrollment(e)"
+              >
+                Revoke
+              </AppButton>
+            </td>
           </tr>
         </tbody>
       </table>

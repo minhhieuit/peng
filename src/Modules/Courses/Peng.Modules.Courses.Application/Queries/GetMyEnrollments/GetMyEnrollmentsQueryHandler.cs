@@ -14,7 +14,7 @@ public class GetMyEnrollmentsQueryHandler(IEnrollmentRepository enrollmentReposi
         foreach (var e in enrollments)
         {
             var course = await courseRepository.GetByIdAsync(e.CourseId, cancellationToken);
-            result.Add(new EnrollmentDto(e.Id, e.CourseId, course?.Title ?? "Unknown", e.UserId, e.Status.ToString(), e.EnrolledAt));
+            result.Add(new EnrollmentDto(e.Id, e.CourseId, course?.Title ?? "Unknown", e.UserId, null, null, e.Status.ToString(), e.EnrolledAt));
         }
         return Result.Success(result);
     }

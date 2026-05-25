@@ -6,6 +6,7 @@ public static class CoursesPermissions
     public const string CoursesWrite = "courses:courses:write";
     public const string CoursesDelete = "courses:courses:delete";
     public const string EnrollmentsRead = "courses:enrollments:read";
+    public const string EnrollmentsWrite = "courses:enrollments:write";
 
     public static IEnumerable<(string Code, string Name, string Description)> All =>
     [
@@ -13,5 +14,6 @@ public static class CoursesPermissions
         (CoursesWrite, "Manage Courses", "Create, update, and publish courses"),
         (CoursesDelete, "Delete Courses", "Delete courses"),
         (EnrollmentsRead, "View Enrollments", "View course enrollment lists"),
+        (EnrollmentsWrite, "Manage Enrollments", "Revoke or restore user enrollments"),
     ];
 }

@@ -3,10 +3,12 @@ using Peng.Modules.Courses.Application;
 using Peng.Modules.Courses.Application.Commands.CreateCourse;
 using Peng.Modules.Courses.Application.Commands.DeleteCourse;
 using Peng.Modules.Courses.Application.Commands.PublishCourse;
+using Peng.Modules.Courses.Application.Commands.UnenrollUser;
 using Peng.Modules.Courses.Application.Commands.UpdateCourse;
 using Peng.Modules.Courses.Application.Queries.GetCourseById;
 using Peng.Modules.Courses.Application.Queries.GetCourseEnrollments;
 using Peng.Modules.Courses.Application.Queries.GetCourses;
+using Peng.Modules.Courses.Application.Queries.GetCoursesStats;
 using Peng.SharedKernel.Infrastructure;
 
 namespace Peng.API.Endpoints.Courses;
@@ -19,9 +21,20 @@ public class CourseManagementEndpoints : IEndpointGroup
             .WithTags("Course Management")
             .RequireAuthorization(p => p.RequireClaim("permission", CoursesPermissions.CoursesRead));
 
-        group.MapGet("", async (IMediator mediator, int page = 1, int pageSize = 20) =>
+        group.MapGet("", async (
+            IMediator mediator,
+            int page = 1,
+            int pageSize = 20,
+            string? search = null,
+            CourseStatusFilter status = CourseStatusFilter.All) =>
         {
-            var result = await mediator.Send(new GetCoursesQuery(page, pageSize, PublishedOnly: false));
+            var result = await mediator.Send(new GetCoursesQuery(page, pageSize, PublishedOnly: false, search, status));
+            return Results.Ok(result.Value);
+        });
+
+        group.MapGet("stats", async (IMediator mediator) =>
+        {
+            var result = await mediator.Send(new GetCoursesStatsQuery());
             return Results.Ok(result.Value);
         });
 
@@ -65,6 +78,12 @@ public class CourseManagementEndpoints : IEndpointGroup
             var result = await mediator.Send(new GetCourseEnrollmentsQuery(id));
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound();
         }).RequireAuthorization(p => p.RequireClaim("permission", CoursesPermissions.EnrollmentsRead));
+
+        group.MapDelete("{id:guid}/enrollments/{userId:guid}", async (Guid id, Guid userId, IMediator mediator) =>
+        {
+            var result = await mediator.Send(new UnenrollUserCommand(id, userId));
+            return result.IsSuccess ? Results.NoContent() : Results.NotFound();
+        }).RequireAuthorization(p => p.RequireClaim("permission", CoursesPermissions.EnrollmentsWrite));
     }
 
     private static Guid? GetUserId(HttpContext ctx)

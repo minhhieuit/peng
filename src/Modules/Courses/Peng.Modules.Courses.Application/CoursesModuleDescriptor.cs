@@ -22,6 +22,7 @@ public class CoursesModuleDescriptor : IModuleDescriptor
         new("Enrollment Management", "View and manage course enrollments",
         [
             "Only users with 'courses:enrollments:read' permission can view enrollment lists",
+            "Only users with 'courses:enrollments:write' permission can revoke enrollments on behalf of users",
         ]),
         new("User Enrollment", "Authenticated users can enroll in and unenroll from published courses",
         [

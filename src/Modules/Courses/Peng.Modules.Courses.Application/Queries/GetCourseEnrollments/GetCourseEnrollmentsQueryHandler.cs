@@ -4,7 +4,10 @@ using Peng.SharedKernel.Application;
 
 namespace Peng.Modules.Courses.Application.Queries.GetCourseEnrollments;
 
-public class GetCourseEnrollmentsQueryHandler(ICourseRepository courseRepository, IEnrollmentRepository enrollmentRepository)
+public class GetCourseEnrollmentsQueryHandler(
+    ICourseRepository courseRepository,
+    IEnrollmentRepository enrollmentRepository,
+    IUserInfoProvider userInfo)
     : IQueryHandler<GetCourseEnrollmentsQuery, List<EnrollmentDto>>
 {
     public async Task<Result<List<EnrollmentDto>>> Handle(GetCourseEnrollmentsQuery request, CancellationToken cancellationToken)
@@ -13,7 +16,14 @@ public class GetCourseEnrollmentsQueryHandler(ICourseRepository courseRepository
         if (course is null) return Result.Failure<List<EnrollmentDto>>(Error.NotFound("Course"));
 
         var enrollments = await enrollmentRepository.GetByCourseAsync(request.CourseId, cancellationToken);
-        var dtos = enrollments.Select(e => new EnrollmentDto(e.Id, e.CourseId, course.Title, e.UserId, e.Status.ToString(), e.EnrolledAt)).ToList();
+        var users = await userInfo.GetByIdsAsync(enrollments.Select(e => e.UserId), cancellationToken);
+
+        var dtos = enrollments.Select(e =>
+        {
+            users.TryGetValue(e.UserId, out var u);
+            return new EnrollmentDto(e.Id, e.CourseId, course.Title, e.UserId, u?.FullName, u?.Email, e.Status.ToString(), e.EnrolledAt);
+        }).ToList();
+
         return Result.Success(dtos);
     }
 }

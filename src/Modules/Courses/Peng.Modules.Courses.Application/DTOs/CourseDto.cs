@@ -17,6 +17,10 @@ public record EnrollmentDto(
     Guid CourseId,
     string CourseTitle,
     Guid UserId,
+    string? UserName,
+    string? UserEmail,
     string Status,
     DateTime EnrolledAt
 );
+
+public record CourseStatsDto(int Total, int Published, int Drafts, int TotalEnrollments);
