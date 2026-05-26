@@ -42,7 +42,11 @@
       "PowerShell(New-Item *)",
       "PowerShell(taskkill *)",
       "Bash(git check-ignore *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npm --prefix frontend run lint)",
+      "Bash(git -C \"D:/Workspace-Hieu/My 2026/Peng\" add src/SharedKernel/Peng.SharedKernel/Application/IUserInfoProvider.cs src/Modules/Identity/Peng.Modules.Identity.Infrastructure/Services/UserInfoProvider.cs src/Modules/Identity/Peng.Modules.Identity.Infrastructure/IdentityModuleInstaller.cs src/Modules/Identity/Peng.Modules.Identity.Infrastructure/Persistence/IdentityDbSeeder.cs src/Modules/Courses src/Bootstrapper/Peng.API/Endpoints/Courses/CourseManagementEndpoints.cs frontend/src/api/courses.api.ts frontend/src/types/courses.types.ts frontend/src/views/CoursesView.vue)",
+      "Bash(git -C \"D:/Workspace-Hieu/My 2026/Peng\" status --short)",
+      "Bash(git -C \"D:/Workspace-Hieu/My 2026/Peng\" log --oneline --all -2 -- docker-compose.yml)"
     ]
   }
 }
