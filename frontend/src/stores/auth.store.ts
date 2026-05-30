@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { authApi } from '@/api/auth.api'
-import type { UserDto, LoginRequest, RegisterRequest } from '@/types/auth.types'
+import type { UserDto, LoginRequest } from '@/types/auth.types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserDto | null>(null)
@@ -32,18 +32,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function register(data: RegisterRequest) {
-    loading.value = true
-    try {
-      const response = await authApi.register(data)
-      token.value = response.accessToken
-      user.value = response.user
-      localStorage.setItem('access_token', response.accessToken)
-    } finally {
-      loading.value = false
-    }
-  }
-
   async function fetchMe() {
     if (!token.value) return
     try {
@@ -59,5 +47,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('access_token')
   }
 
-  return { user, token, loading, isAuthenticated, permissions, roles, hasPermission, hasRole, login, register, fetchMe, logout }
+  return { user, token, loading, isAuthenticated, permissions, roles, hasPermission, hasRole, login, fetchMe, logout }
 })

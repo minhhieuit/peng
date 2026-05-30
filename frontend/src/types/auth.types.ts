@@ -22,13 +22,6 @@ export interface LoginRequest {
   password: string
 }
 
-export interface RegisterRequest {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-}
-
 export interface ApiError {
   code: string
   description: string

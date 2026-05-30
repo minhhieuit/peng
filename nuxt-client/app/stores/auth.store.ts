@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { UserDto, AuthResponse, LoginRequest, RegisterRequest } from '~/types/api.types'
+import type { MemberDto, MemberAuthResponse, LoginRequest, RegisterRequest } from '~/types/api.types'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = useCookie<string | null>('peng_token', {
@@ -9,33 +9,36 @@ export const useAuthStore = defineStore('auth', () => {
     sameSite: 'lax',
   })
 
-  const user = useState<UserDto | null>('auth_user', () => null)
+  const user = useState<MemberDto | null>('auth_member', () => null)
   const isAuthenticated = computed(() => !!token.value)
 
   async function login(credentials: LoginRequest) {
     const $api = useApiClient()
-    const data = await $api<AuthResponse>('/auth/login', {
+    const data = await $api<MemberAuthResponse>('/auth/member/login', {
       method: 'POST',
       body: credentials,
     })
     token.value = data.accessToken
-    user.value = data.user
+    user.value = data.member
     return data
   }
 
   async function register(payload: RegisterRequest) {
     const $api = useApiClient()
-    await $api('/auth/register', {
+    const data = await $api<MemberAuthResponse>('/auth/member/register', {
       method: 'POST',
       body: payload,
     })
+    token.value = data.accessToken
+    user.value = data.member
+    return data
   }
 
   async function fetchMe() {
     if (!token.value) return
     const $api = useApiClient()
     try {
-      user.value = await $api<UserDto>('/users/me')
+      user.value = await $api<MemberDto>('/members/me')
     } catch {
       token.value = null
       user.value = null
@@ -48,9 +51,5 @@ export const useAuthStore = defineStore('auth', () => {
     return navigateTo('/auth/login')
   }
 
-  function hasPermission(permission: string): boolean {
-    return user.value?.permissions.includes(permission) ?? false
-  }
-
-  return { token, user, isAuthenticated, login, register, fetchMe, logout, hasPermission }
+  return { token, user, isAuthenticated, login, register, fetchMe, logout }
 })

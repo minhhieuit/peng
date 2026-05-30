@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Peng.Modules.Courses.Application;
 using Peng.Modules.Courses.Infrastructure;
-using Peng.Modules.Identity.Application.Commands.Register;
+using Peng.Modules.Identity.Application.Commands.Login;
 using Peng.Modules.Identity.Infrastructure;
-using Peng.Modules.Identity.Infrastructure.Settings;
+using Peng.Modules.Members.Application;
+using Peng.Modules.Members.Infrastructure;
 using Peng.SharedKernel.Application;
 using Peng.SharedKernel.Behaviors;
 using Peng.SharedKernel.Infrastructure;
@@ -21,6 +22,7 @@ internal static class ServiceCollectionExtensions
         var installers = new List<IModuleInstaller>
         {
             new IdentityModuleInstaller(),
+            new MembersModuleInstaller(),
             new CoursesModuleInstaller(),
         };
 
@@ -34,12 +36,14 @@ internal static class ServiceCollectionExtensions
     {
         services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(MembersModuleDescriptor).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(CoursesModuleDescriptor).Assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
 
-        services.AddValidatorsFromAssembly(typeof(RegisterCommand).Assembly);
+        services.AddValidatorsFromAssembly(typeof(LoginCommand).Assembly);
+        services.AddValidatorsFromAssembly(typeof(MembersModuleDescriptor).Assembly);
         services.AddValidatorsFromAssembly(typeof(CoursesModuleDescriptor).Assembly);
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, Peng.API.Infrastructure.CurrentUser>();
@@ -52,9 +56,18 @@ internal static class ServiceCollectionExtensions
         var jwtSettings = configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
             ?? throw new InvalidOperationException("JWT settings are not configured.");
 
+        // Shared auth primitives — used by both the Identity (admin) and Members modules.
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IEmailSender, NoOpEmailSender>();
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                // Keep JWT claim names as-is ("sub", "email", ...) instead of remapping
+                // them to the long WS-* URIs, so ctx.User.FindFirst("sub") works directly.
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -68,7 +81,15 @@ internal static class ServiceCollectionExtensions
                 };
             });
 
-        services.AddAuthorization();
+        // Audience guard: admin tokens and member tokens cannot be used against
+        // each other's endpoints, even if a token somehow carried extra claims.
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminToken", policy =>
+                policy.RequireClaim(TokenTypes.ClaimName, TokenTypes.Admin));
+            options.AddPolicy("MemberToken", policy =>
+                policy.RequireClaim(TokenTypes.ClaimName, TokenTypes.Member));
+        });
         return services;
     }
 }

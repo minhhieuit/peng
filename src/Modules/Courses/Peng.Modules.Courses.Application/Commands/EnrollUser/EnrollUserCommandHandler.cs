@@ -14,20 +14,20 @@ public class EnrollUserCommandHandler(ICourseRepository courseRepository, IEnrol
         if (course is null) return Result.Failure<EnrollmentDto>(Error.NotFound("Course"));
         if (!course.IsPublished) return Result.Failure<EnrollmentDto>(Error.NotFound("Course"));
 
-        var existing = await enrollmentRepository.GetAsync(request.CourseId, request.UserId, cancellationToken);
+        var existing = await enrollmentRepository.GetAsync(request.CourseId, request.MemberId, cancellationToken);
         if (existing is not null)
         {
             if (existing.Status == EnrollmentStatus.Active)
                 return Result.Failure<EnrollmentDto>(Error.Conflict("Already enrolled in this course"));
             existing.Reactivate();
             await uow.SaveChangesAsync(cancellationToken);
-            return Result.Success(new EnrollmentDto(existing.Id, existing.CourseId, course.Title, existing.UserId, null, null, existing.Status.ToString(), existing.EnrolledAt));
+            return Result.Success(new EnrollmentDto(existing.Id, existing.CourseId, course.Title, existing.MemberId, null, null, existing.Status.ToString(), existing.EnrolledAt));
         }
 
-        var enrollment = Enrollment.Create(request.CourseId, request.UserId);
+        var enrollment = Enrollment.Create(request.CourseId, request.MemberId);
         await enrollmentRepository.AddAsync(enrollment, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new EnrollmentDto(enrollment.Id, enrollment.CourseId, course.Title, enrollment.UserId, null, null, enrollment.Status.ToString(), enrollment.EnrolledAt));
+        return Result.Success(new EnrollmentDto(enrollment.Id, enrollment.CourseId, course.Title, enrollment.MemberId, null, null, enrollment.Status.ToString(), enrollment.EnrolledAt));
     }
 }

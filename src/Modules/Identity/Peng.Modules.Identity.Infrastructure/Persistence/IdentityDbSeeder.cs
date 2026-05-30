@@ -4,8 +4,9 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using Peng.Modules.Courses.Application;
 using Peng.Modules.Identity.Application;
-using Peng.Modules.Identity.Application.Services;
 using Peng.Modules.Identity.Domain.Entities;
+using Peng.Modules.Members.Application;
+using Peng.SharedKernel.Application;
 
 namespace Peng.Modules.Identity.Infrastructure.Persistence;
 
@@ -33,7 +34,9 @@ public class IdentityDbSeeder(
         var allPermissions = IdentityPermissions.All
             .Select(p => (p.Code, p.Name, p.Description, Module: "Identity"))
             .Concat(CoursesPermissions.All
-                .Select(p => (p.Code, p.Name, p.Description, Module: "Courses")));
+                .Select(p => (p.Code, p.Name, p.Description, Module: "Courses")))
+            .Concat(MembersPermissions.All
+                .Select(p => (p.Code, p.Name, p.Description, Module: "Members")));
 
         var toAdd = allPermissions
             .Where(p => !existingCodes.Contains(p.Code))

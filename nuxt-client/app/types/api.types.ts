@@ -1,20 +1,20 @@
-export interface UserDto {
+export interface MemberDto {
   id: string
   email: string
   firstName: string
   lastName: string
   fullName: string
   isActive: boolean
+  mustChangePassword: boolean
   createdAt: string
-  roles: string[]
-  permissions: string[]
+  lastLoginAt: string | null
 }
 
-export interface AuthResponse {
+export interface MemberAuthResponse {
   accessToken: string
   tokenType: string
   expiresIn: number
-  user: UserDto
+  member: MemberDto
 }
 
 export interface LoginRequest {

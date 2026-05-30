@@ -3,4 +3,4 @@ using Peng.SharedKernel.Application;
 
 namespace Peng.Modules.Courses.Application.Queries.GetMyEnrollments;
 
-public record GetMyEnrollmentsQuery(Guid UserId) : IQuery<List<EnrollmentDto>>;
+public record GetMyEnrollmentsQuery(Guid MemberId) : IQuery<List<EnrollmentDto>>;

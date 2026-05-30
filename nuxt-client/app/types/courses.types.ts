@@ -14,7 +14,7 @@ export interface EnrollmentDto {
   id: string
   courseId: string
   courseTitle: string
-  userId: string
+  memberId: string
   status: 'Active' | 'Cancelled'
   enrolledAt: string
 }

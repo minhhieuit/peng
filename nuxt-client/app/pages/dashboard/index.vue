@@ -17,21 +17,14 @@ if (!auth.user) await auth.fetchMe()
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="bg-white rounded-xl border border-gray-200 p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Roles</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ auth.user?.roles.length ?? 0 }}</p>
-        <div class="flex flex-wrap gap-1.5 mt-3">
-          <span
-            v-for="role in auth.user?.roles"
-            :key="role"
-            class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium"
-          >
-            {{ role }}
-          </span>
-        </div>
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Account type</p>
+        <p class="text-2xl font-bold text-gray-900 mt-1">Member</p>
       </div>
       <div class="bg-white rounded-xl border border-gray-200 p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Permissions</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ auth.user?.permissions.length ?? 0 }}</p>
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Member since</p>
+        <p class="text-2xl font-bold text-gray-900 mt-1">
+          {{ auth.user?.createdAt ? new Date(auth.user.createdAt).toLocaleDateString() : '—' }}
+        </p>
       </div>
       <div class="bg-white rounded-xl border border-gray-200 p-5">
         <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</p>

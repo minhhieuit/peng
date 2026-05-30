@@ -71,11 +71,6 @@ async function handleSubmit() {
             {{ authStore.loading ? 'Signing in...' : 'Sign in' }}
           </button>
         </form>
-
-        <p class="mt-6 text-center text-sm text-gray-500">
-          Don't have an account?
-          <RouterLink to="/register" class="text-indigo-600 hover:text-indigo-700 font-medium">Sign up</RouterLink>
-        </p>
       </div>
     </div>
   </div>

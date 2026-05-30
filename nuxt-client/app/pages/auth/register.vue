@@ -13,7 +13,6 @@ async function submit() {
   loading.value = true
   try {
     await auth.register(form)
-    await auth.login({ email: form.email, password: form.password })
     await navigateTo('/dashboard')
   } catch (e: any) {
     error.value = e?.data?.message ?? 'Registration failed'

@@ -27,35 +27,35 @@ public class CourseEndpoints : IEndpointGroup
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound();
         });
 
-        // Authenticated: enroll / unenroll / my-enrollments
+        // Member-only: enroll / unenroll / my-enrollments. The "sub" claim is the member id.
         group.MapPost("{id:guid}/enroll", async (Guid id, IMediator mediator, HttpContext ctx) =>
         {
-            var userId = GetUserId(ctx);
-            if (userId is null) return Results.Unauthorized();
-            var result = await mediator.Send(new EnrollUserCommand(id, userId.Value));
+            var memberId = GetMemberId(ctx);
+            if (memberId is null) return Results.Unauthorized();
+            var result = await mediator.Send(new EnrollUserCommand(id, memberId.Value));
             return result.IsSuccess ? Results.Ok(result.Value)
                 : result.Error.Code.Contains("Conflict") ? Results.Conflict(result.Error.Description)
                 : Results.NotFound();
-        }).RequireAuthorization();
+        }).RequireAuthorization("MemberToken");
 
         group.MapDelete("{id:guid}/enroll", async (Guid id, IMediator mediator, HttpContext ctx) =>
         {
-            var userId = GetUserId(ctx);
-            if (userId is null) return Results.Unauthorized();
-            var result = await mediator.Send(new UnenrollUserCommand(id, userId.Value));
+            var memberId = GetMemberId(ctx);
+            if (memberId is null) return Results.Unauthorized();
+            var result = await mediator.Send(new UnenrollUserCommand(id, memberId.Value));
             return result.IsSuccess ? Results.NoContent() : Results.NotFound();
-        }).RequireAuthorization();
+        }).RequireAuthorization("MemberToken");
 
         group.MapGet("my-enrollments", async (IMediator mediator, HttpContext ctx) =>
         {
-            var userId = GetUserId(ctx);
-            if (userId is null) return Results.Unauthorized();
-            var result = await mediator.Send(new GetMyEnrollmentsQuery(userId.Value));
+            var memberId = GetMemberId(ctx);
+            if (memberId is null) return Results.Unauthorized();
+            var result = await mediator.Send(new GetMyEnrollmentsQuery(memberId.Value));
             return Results.Ok(result.Value);
-        }).RequireAuthorization();
+        }).RequireAuthorization("MemberToken");
     }
 
-    private static Guid? GetUserId(HttpContext ctx)
+    private static Guid? GetMemberId(HttpContext ctx)
     {
         var sub = ctx.User.FindFirst("sub")?.Value;
         return Guid.TryParse(sub, out var id) ? id : null;

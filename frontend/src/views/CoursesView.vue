@@ -186,13 +186,13 @@ async function openEnrollments(course: CourseDto) {
 async function revokeEnrollment(enrollment: EnrollmentDto) {
   const ok = await confirm({
     title: 'Revoke Enrollment',
-    message: `Revoke enrollment for "${enrollment.userName ?? enrollment.userId}"?`,
+    message: `Revoke enrollment for "${enrollment.memberName ?? enrollment.memberId}"?`,
     confirmText: 'Revoke',
     danger: true,
   })
   if (!ok) return
   try {
-    await coursesApi.revokeEnrollment(enrollment.courseId, enrollment.userId)
+    await coursesApi.revokeEnrollment(enrollment.courseId, enrollment.memberId)
     enrollments.value = enrollments.value.filter(e => e.id !== enrollment.id)
     toast.success('Enrollment revoked')
     await Promise.all([fetchCourses(), fetchStats()])
@@ -384,8 +384,8 @@ function formatDate(d: string) {
         <tbody class="divide-y divide-gray-100">
           <tr v-for="e in enrollments" :key="e.id" class="hover:bg-gray-50">
             <td class="px-3 py-2">
-              <div class="text-sm font-medium text-gray-900">{{ e.userName ?? 'Unknown user' }}</div>
-              <div class="text-xs text-gray-400">{{ e.userEmail ?? e.userId }}</div>
+              <div class="text-sm font-medium text-gray-900">{{ e.memberName ?? 'Unknown member' }}</div>
+              <div class="text-xs text-gray-400">{{ e.memberEmail ?? e.memberId }}</div>
             </td>
             <td class="px-3 py-2">
               <AppBadge :variant="e.status === 'Active' ? 'success' : 'danger'">{{ e.status }}</AppBadge>

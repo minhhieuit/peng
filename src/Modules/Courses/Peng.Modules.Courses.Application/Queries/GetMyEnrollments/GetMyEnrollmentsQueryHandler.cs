@@ -9,12 +9,12 @@ public class GetMyEnrollmentsQueryHandler(IEnrollmentRepository enrollmentReposi
 {
     public async Task<Result<List<EnrollmentDto>>> Handle(GetMyEnrollmentsQuery request, CancellationToken cancellationToken)
     {
-        var enrollments = await enrollmentRepository.GetByUserAsync(request.UserId, cancellationToken);
+        var enrollments = await enrollmentRepository.GetByMemberAsync(request.MemberId, cancellationToken);
         var result = new List<EnrollmentDto>();
         foreach (var e in enrollments)
         {
             var course = await courseRepository.GetByIdAsync(e.CourseId, cancellationToken);
-            result.Add(new EnrollmentDto(e.Id, e.CourseId, course?.Title ?? "Unknown", e.UserId, null, null, e.Status.ToString(), e.EnrolledAt));
+            result.Add(new EnrollmentDto(e.Id, e.CourseId, course?.Title ?? "Unknown", e.MemberId, null, null, e.Status.ToString(), e.EnrolledAt));
         }
         return Result.Success(result);
     }

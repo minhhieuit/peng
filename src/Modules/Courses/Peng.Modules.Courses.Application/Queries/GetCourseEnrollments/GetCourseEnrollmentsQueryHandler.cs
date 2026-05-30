@@ -16,12 +16,12 @@ public class GetCourseEnrollmentsQueryHandler(
         if (course is null) return Result.Failure<List<EnrollmentDto>>(Error.NotFound("Course"));
 
         var enrollments = await enrollmentRepository.GetByCourseAsync(request.CourseId, cancellationToken);
-        var users = await userInfo.GetByIdsAsync(enrollments.Select(e => e.UserId), cancellationToken);
+        var members = await userInfo.GetByIdsAsync(enrollments.Select(e => e.MemberId), cancellationToken);
 
         var dtos = enrollments.Select(e =>
         {
-            users.TryGetValue(e.UserId, out var u);
-            return new EnrollmentDto(e.Id, e.CourseId, course.Title, e.UserId, u?.FullName, u?.Email, e.Status.ToString(), e.EnrolledAt);
+            members.TryGetValue(e.MemberId, out var m);
+            return new EnrollmentDto(e.Id, e.CourseId, course.Title, e.MemberId, m?.FullName, m?.Email, e.Status.ToString(), e.EnrolledAt);
         }).ToList();
 
         return Result.Success(dtos);

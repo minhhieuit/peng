@@ -10,7 +10,7 @@ internal class UserManagementEndpoints : IEndpointGroup
 {
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/users").WithTags("Users").RequireAuthorization();
+        var group = app.MapGroup("/api/users").WithTags("Users").RequireAuthorization("AdminToken");
 
         group.MapGet("/{id:guid}", GetUserById)
              .WithSummary("Get user by ID")

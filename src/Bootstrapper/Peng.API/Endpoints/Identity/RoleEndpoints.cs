@@ -11,7 +11,7 @@ internal class RoleEndpoints : IEndpointGroup
 {
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/roles").WithTags("Roles").RequireAuthorization();
+        var group = app.MapGroup("/api/roles").WithTags("Roles").RequireAuthorization("AdminToken");
 
         group.MapGet("/", GetRoles)
              .WithSummary("Get all roles")

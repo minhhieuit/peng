@@ -9,7 +9,7 @@ const config: UserConfig = {
     ],
     'scope-enum': [
       2, 'always',
-      ['api', 'frontend', 'identity', 'shared', 'docker', 'ci', 'deps', 'docs', 'auth', 'roles', 'users', 'permissions', 'courses'],
+      ['api', 'frontend', 'identity', 'members', 'shared', 'docker', 'ci', 'deps', 'docs', 'auth', 'roles', 'users', 'permissions', 'courses'],
     ],
     'scope-empty': [2, 'never'],
     'subject-case': [2, 'always', 'lower-case'],

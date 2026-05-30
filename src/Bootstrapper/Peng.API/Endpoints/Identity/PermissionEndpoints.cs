@@ -9,6 +9,7 @@ internal class PermissionEndpoints : IEndpointGroup
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
         app.MapGroup("/api/permissions").WithTags("Permissions")
+           .RequireAuthorization("AdminToken")
            .MapGet("/", GetPermissions)
            .WithSummary("Get all permissions")
            .RequireAuthorization(p => p.RequireClaim("permission", "identity:permissions:read"));

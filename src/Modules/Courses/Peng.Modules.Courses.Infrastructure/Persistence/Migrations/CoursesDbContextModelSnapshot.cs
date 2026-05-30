@@ -79,6 +79,9 @@ namespace Peng.Modules.Courses.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("EnrolledAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -87,12 +90,9 @@ namespace Peng.Modules.Courses.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId", "UserId")
+                    b.HasIndex("CourseId", "MemberId")
                         .IsUnique();
 
                     b.ToTable("Enrollments", "courses");

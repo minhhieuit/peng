@@ -14,6 +14,11 @@
     <Project Path="src/Modules/Identity/Peng.Modules.Identity.Domain/Peng.Modules.Identity.Domain.csproj" />
     <Project Path="src/Modules/Identity/Peng.Modules.Identity.Infrastructure/Peng.Modules.Identity.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Members/">
+    <Project Path="src/Modules/Members/Peng.Modules.Members.Application/Peng.Modules.Members.Application.csproj" />
+    <Project Path="src/Modules/Members/Peng.Modules.Members.Domain/Peng.Modules.Members.Domain.csproj" />
+    <Project Path="src/Modules/Members/Peng.Modules.Members.Infrastructure/Peng.Modules.Members.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/SharedKernel/">
     <Project Path="src/SharedKernel/Peng.SharedKernel/Peng.SharedKernel.csproj" />
   </Folder>

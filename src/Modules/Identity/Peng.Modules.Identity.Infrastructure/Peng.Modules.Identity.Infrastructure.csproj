@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Peng.Modules.Identity.Application\Peng.Modules.Identity.Application.csproj" />
     <ProjectReference Include="..\..\Courses\Peng.Modules.Courses.Application\Peng.Modules.Courses.Application.csproj" />
+    <ProjectReference Include="..\..\Members\Peng.Modules.Members.Application\Peng.Modules.Members.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

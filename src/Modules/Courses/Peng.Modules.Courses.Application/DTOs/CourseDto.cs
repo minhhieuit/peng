@@ -16,9 +16,9 @@ public record EnrollmentDto(
     Guid Id,
     Guid CourseId,
     string CourseTitle,
-    Guid UserId,
-    string? UserName,
-    string? UserEmail,
+    Guid MemberId,
+    string? MemberName,
+    string? MemberEmail,
     string Status,
     DateTime EnrolledAt
 );

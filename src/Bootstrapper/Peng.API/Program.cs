@@ -14,6 +14,9 @@ builder.Services
     .AddApplicationServices()
     .AddJwtAuthentication(builder.Configuration);
 
+// Captured before Build() so every module's DbContext is auto-migrated at startup.
+var dbContextTypes = builder.Services.GetRegisteredDbContextTypes();
+
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
@@ -21,6 +24,9 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 
 var app = builder.Build();
+
+// Apply pending migrations for all module databases, then seed reference data.
+await app.Services.MigrateDatabasesAsync(dbContextTypes);
 
 using (var scope = app.Services.CreateScope())
 {

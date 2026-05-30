@@ -1,5 +1,4 @@
 using Peng.Modules.Identity.Application.DTOs;
-using Peng.Modules.Identity.Application.Services;
 using Peng.Modules.Identity.Domain.Repositories;
 using Peng.SharedKernel.Application;
 
@@ -25,12 +24,11 @@ internal sealed class LoginCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         var permissions = user.GetAllPermissions().ToList();
-        var token = jwtService.GenerateToken(user, permissions);
+        var roles = user.UserRoles.Select(ur => ur.Role?.Name ?? "").Where(r => !string.IsNullOrEmpty(r)).ToList();
+        var token = jwtService.GenerateToken(user.Id, user.Email, user.FirstName, user.LastName, roles, permissions, TokenTypes.Admin);
 
         var userDto = new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.FullName,
-            user.IsActive, user.CreatedAt,
-            user.UserRoles.Select(ur => ur.Role?.Name ?? "").Where(r => !string.IsNullOrEmpty(r)),
-            permissions);
+            user.IsActive, user.CreatedAt, roles, permissions);
 
         return Result.Success(new AuthResponse(token, "Bearer", 3600, userDto));
     }

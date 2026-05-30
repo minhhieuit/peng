@@ -21,6 +21,12 @@ const router = createRouter({
           meta: { permission: 'identity:users:read' },
         },
         {
+          path: 'members',
+          name: 'members',
+          component: () => import('@/views/MembersView.vue'),
+          meta: { permission: 'members:members:read' },
+        },
+        {
           path: 'roles',
           name: 'roles',
           component: () => import('@/views/RolesView.vue'),
@@ -44,12 +50,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/auth/LoginView.vue'),
-      meta: { guest: true },
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/auth/RegisterView.vue'),
       meta: { guest: true },
     },
     {

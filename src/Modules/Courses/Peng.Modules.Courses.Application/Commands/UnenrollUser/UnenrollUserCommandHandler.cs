@@ -9,7 +9,7 @@ public class UnenrollUserCommandHandler(IEnrollmentRepository enrollmentReposito
 {
     public async Task<Result<bool>> Handle(UnenrollUserCommand request, CancellationToken cancellationToken)
     {
-        var enrollment = await enrollmentRepository.GetAsync(request.CourseId, request.UserId, cancellationToken);
+        var enrollment = await enrollmentRepository.GetAsync(request.CourseId, request.MemberId, cancellationToken);
         if (enrollment is null || enrollment.Status == EnrollmentStatus.Cancelled)
             return Result.Failure<bool>(Error.NotFound("Enrollment"));
 

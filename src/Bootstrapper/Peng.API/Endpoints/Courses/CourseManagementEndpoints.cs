@@ -19,6 +19,7 @@ public class CourseManagementEndpoints : IEndpointGroup
     {
         var group = app.MapGroup("/api/manage/courses")
             .WithTags("Course Management")
+            .RequireAuthorization("AdminToken")
             .RequireAuthorization(p => p.RequireClaim("permission", CoursesPermissions.CoursesRead));
 
         group.MapGet("", async (
